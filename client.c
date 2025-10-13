@@ -1,36 +1,57 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <time.h>
+#include "client.h"
 
-int main(int argc, char *argv[]){
+int create_client_socket(char* ip, int port){
+    int client_socket = 0;
+    struct sockaddr_in address_v4;
+    struct sockaddr_in6 address_v6;
 
-    int client_socket;
-    if(!strcmp(argv[1], "v4")){
+    if (inet_pton(AF_INET, ip, &address_v4.sin_addr) == 1){
         client_socket = socket(AF_INET, SOCK_STREAM, 0);
-        printf("Criado v4 com sucesso\n");
+        address_v4.sin_family = AF_INET;
+        address_v4.sin_port = htons(port);
+        client_addr = (struct sockaddr*)address_v4;
     }
-    else if(!strcmp(argv[1], "v6")){
+    else if (inet_pton(AF_INET6, ip, &address_v6.sin6_addr) == 1){
         client_socket = socket(AF_INET6, SOCK_STREAM, 0);
-        printf("Criado v6 com sucesso\n");
+        address_v6.sin6_family = AF_INET6;
+        address_v6.sin6_port = htons(port);
+        address_v6->sin6_scope_id = 0;
+        address_v6->sin6_flowinfo = 0;
+        client_addr = (struct sockaddr*)address_v6;
     }
-    else{
-        printf("Parâmetro de versão de IP inválido!\n");
-        exit(-1);
+    else
+        client_socket = -1;
+
+    return client_socket;
+}
+
+struct sockaddr *create_client_addr(char* ip, int port, socklen_t *len, int* is_v4){
+
+    struct sockaddr_in *address_v4 = malloc(sizeof(struct sockaddr_in));
+    struct sockaddr_in6 *address_v6 = malloc(sizeof(struct sockaddr_in6));
+
+    if (inet_pton(AF_INET, ip, &address_v4.sin_addr) == 1){
+        *is_v4 = 1;
+        address_v4->sin_family = AF_INET;
+        address_v4->sin_port = htons(port);
+        *len = sizeof(*address_v4);
+        free(address_v6);
+        return (struct sockaddr*)address_v4;
+    }
+    
+    if (inet_pton(AF_INET6, ip, &address_v6.sin6_addr) == 1){
+        *is_v4 = 0;
+        address_v6->sin6_family = AF_INET6;
+        address_v6->sin6_port = htons(port);
+        address_v6->sin6_scope_id = 0;
+        address_v6->sin6_flowinfo = 0;
+        *len = sizeof(*address_v6);
+        free(address_v4);
+        return (struct sockaddr*)address_v6;
     }
 
-    int port = atoi(argv[2]);
-    if(port > 1024 && port <= 65535){
-        printf("Porta válida\n");
-    }
-    else{
-        printf("Parâmetro de porta inválido!\n");
-        exit(-1);
-    }
+    free(address_v4);
+    free(address_v6);
 
+    return NULL;
 }

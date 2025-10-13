@@ -10,5 +10,4 @@
 #include <arpa/inet.h>
 #include <time.h>
 
-int create_server_socket(char* protocol);
-struct sockaddr *create_server_addr(int port, char* protocol, socklen_t *len);
+int create_client_socket(char* ip);

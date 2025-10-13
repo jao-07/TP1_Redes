@@ -2,6 +2,11 @@
 
 int main(int argc, char *argv[]){
 
+    if(argc != 2){
+        printf("Parâmetros passados inválidos!");
+        exit(EXIT_FAILURE);
+    }
+
     int server_socket, client_socket;
     char* protocol = argv[1];
     int port = atoi(argv[2]);
@@ -11,11 +16,6 @@ int main(int argc, char *argv[]){
 
     char input_buffer[1024] = { 0 };
     char output_buffer[1024] = { 0 };
-
-    // struct sockadd_in client_addr4;
-    // struct sockadd_in6 client_addr6;
-    // struct sockaddr *client_addr;
-    // socklen_t client_addrlen;
 
     server_socket = create_server_socket(argv[1]);
 
@@ -39,15 +39,6 @@ int main(int argc, char *argv[]){
         perror("Erro no listen");
         exit(EXIT_FAILURE);
     }
-
-    // if(!strcmp(protocol, "v4")){
-    //     client_addr = (struct sockaddr *)&client_addr4
-    //     client_addrlen = sizeof(client_addr4)
-    // }
-    // else{
-    //     client_addr = (struct sockaddr *)&client_addr6
-    //     client_addrlen = sizeof(client_addr6)
-    // }
 
     client_socket = accept(server_socket, NULL, NULL);
 
