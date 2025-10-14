@@ -2,7 +2,7 @@
 
 int main(int argc, char *argv[]){
 
-    if(argc != 2){
+    if(argc != 3){
         printf("Parâmetros passados inválidos!");
         exit(EXIT_FAILURE);
     }
@@ -14,8 +14,9 @@ int main(int argc, char *argv[]){
     struct sockaddr *server_addr;
     socklen_t server_addrlen;
 
-    char input_buffer[1024] = { 0 };
+    int client_input;
     char output_buffer[1024] = { 0 };
+    int numero = 0;
 
     server_socket = create_server_socket(argv[1]);
 
@@ -47,19 +48,26 @@ int main(int argc, char *argv[]){
         exit(EXIT_FAILURE);
     }
 
+    printf("Conexão feita\n");
+
+    snprintf(output_buffer, sizeof(output_buffer), "Bem-vindo ao jogo!");
+    send(client_socket, output_buffer, strlen(output_buffer), 0);
+
     while(1){
-        memset(input_buffer, 0, sizeof(input_buffer));
-        ssize_t received_bytes = recv(client_socket, input_buffer, sizeof(input_buffer) - 1, 0);
+        ssize_t received_bytes = recv(client_socket, &client_input, sizeof(client_input), 0);
         if(received_bytes <= 0){
             printf("Conexão encerrada.");
             break;
         }
 
-        input_buffer[received_bytes] = '\0';
-        printf("Mensagem do cliente: %s\n", input_buffer);
+        int option = ntohl(client_input);
+        printf("Cliente escolheu a opção %d\n", option);
 
         memset(output_buffer, 0, sizeof(output_buffer));
-        send(client_socket, buffer)
+        numero++;
+        
+        snprintf(output_buffer, sizeof(output_buffer), "Mensagem de número %d", numero);
+        send(client_socket, &output_buffer, strlen(output_buffer), 0);
     }
 
     close(client_socket);

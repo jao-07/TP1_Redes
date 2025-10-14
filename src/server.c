@@ -28,7 +28,7 @@ struct sockaddr *create_server_addr(int port, char* protocol, socklen_t *len){
         address_v6->sin6_family = AF_INET6;
         address_v6->sin6_port = htons(port);
         address_v6->sin6_flowinfo = 0; 
-        address_v6->sin6_addr.s6_addr = in6addr_any;
+        address_v6->sin6_addr = in6addr_any;
         address_v6->sin6_scope_id = 0;
         *len = sizeof(*address_v6);
 
