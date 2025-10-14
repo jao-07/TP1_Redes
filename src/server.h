@@ -12,3 +12,4 @@
 
 int create_server_socket(char* protocol);
 struct sockaddr *create_server_addr(int port, char* protocol, socklen_t *len);
+char * process_option(int option, int server_hp, int client_hp);

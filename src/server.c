@@ -37,3 +37,7 @@ struct sockaddr *create_server_addr(int port, char* protocol, socklen_t *len){
     
     return NULL;
 }
+
+char * process_option(int option, int server_hp, int client_hp){
+
+}

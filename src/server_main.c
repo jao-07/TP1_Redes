@@ -1,4 +1,5 @@
 #include "server.h"
+#include "message.h"
 
 int main(int argc, char *argv[]){
 
@@ -16,7 +17,8 @@ int main(int argc, char *argv[]){
 
     int client_input;
     char output_buffer[1024] = { 0 };
-    int numero = 0;
+
+    int server_hp, client_hp = 100;
 
     server_socket = create_server_socket(argv[1]);
 
@@ -50,7 +52,7 @@ int main(int argc, char *argv[]){
 
     printf("Conexão feita\n");
 
-    snprintf(output_buffer, sizeof(output_buffer), "Bem-vindo ao jogo!");
+    snprintf(output_buffer, sizeof(output_buffer), "Conectado ao servidor.\nSua nave : SS-42 Voyager (HP: 100 )");
     send(client_socket, output_buffer, strlen(output_buffer), 0);
 
     while(1){
@@ -64,9 +66,10 @@ int main(int argc, char *argv[]){
         printf("Cliente escolheu a opção %d\n", option);
 
         memset(output_buffer, 0, sizeof(output_buffer));
-        numero++;
+
+
         
-        snprintf(output_buffer, sizeof(output_buffer), "Mensagem de número %d", numero);
+        snprintf(output_buffer, sizeof(output_buffer), process_option(option, server_hp, client_hp), numero);
         send(client_socket, &output_buffer, strlen(output_buffer), 0);
     }
 

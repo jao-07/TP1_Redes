@@ -1,4 +1,5 @@
 #include "client.h"
+#include "message.h"
 
 int main(int argc, char *argv[]){
 
@@ -35,7 +36,7 @@ int main(int argc, char *argv[]){
         }
 
         input_buffer[received_bytes] = '\0';
-        printf("Mensagem do servidor: %s\n", input_buffer);
+        printf("%s\n", input_buffer);
         
         while(option < 0 || option > 4){
             printf("Escolha uma opção:\n0: Laser Attack\n1: Photon Torpedo\n2: Shields Up\n3: Cloaking \n4: Hyper Jump\n\n");
