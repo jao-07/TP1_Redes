@@ -19,8 +19,11 @@ int main(int argc, char *argv[]){
     char output_buffer[1024] = { 0 };
 
     int server_hp, client_hp = 100;
+    struct BattleMessage* battle_message = malloc(sizeof(struct BattleMessage));
 
     server_socket = create_server_socket(argv[1]);
+
+    srand(time(NULL));
 
     if(server_socket < 0){
         perror("Erro ao criar o socket de servidor");
@@ -50,9 +53,8 @@ int main(int argc, char *argv[]){
         exit(EXIT_FAILURE);
     }
 
-    printf("Conexão feita\n");
-
-    snprintf(output_buffer, sizeof(output_buffer), "Conectado ao servidor.\nSua nave : SS-42 Voyager (HP: 100 )");
+    battle_message->type = MSG_INIT;
+    snprintf(battle_message->message, MSG_SIZE, "Conectado ao servidor.\nSua nave : SS-42 Voyager (HP: 100 )");
     send(client_socket, output_buffer, strlen(output_buffer), 0);
 
     while(1){

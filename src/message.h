@@ -3,7 +3,7 @@
 #define MSG_SIZE 256
 
 typedef enum {
-    MGS_INIT,
+    MSG_INIT,
     MSG_ACTION_REQ,
     MSG_ACTION_RES,
     MSG_BATTLE_RESULT,

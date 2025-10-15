@@ -38,6 +38,7 @@ struct sockaddr *create_server_addr(int port, char* protocol, socklen_t *len){
     return NULL;
 }
 
-char * process_option(int option, int server_hp, int client_hp){
+struct  BattleMessage process_actions(struct BattleMessage client_message, int client_socket){
+    int server_choice = rand() % 5;
 
 }

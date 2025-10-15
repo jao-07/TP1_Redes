@@ -5,20 +5,10 @@ int create_client_socket(char* ip, int port){
     struct sockaddr_in address_v4;
     struct sockaddr_in6 address_v6;
 
-    if (inet_pton(AF_INET, ip, &address_v4.sin_addr) == 1){
+    if (inet_pton(AF_INET, ip, &address_v4.sin_addr) == 1)
         client_socket = socket(AF_INET, SOCK_STREAM, 0);
-        // address_v4.sin_family = AF_INET;
-        // address_v4.sin_port = htons(port);
-        // client_addr = (struct sockaddr*)address_v4;
-    }
-    else if (inet_pton(AF_INET6, ip, &address_v6.sin6_addr) == 1){
+    else if (inet_pton(AF_INET6, ip, &address_v6.sin6_addr) == 1)
         client_socket = socket(AF_INET6, SOCK_STREAM, 0);
-        // address_v6.sin6_family = AF_INET6;
-        // address_v6.sin6_port = htons(port);
-        // address_v6->sin6_scope_id = 0;
-        // address_v6->sin6_flowinfo = 0;
-        // client_addr = (struct sockaddr*)address_v6;
-    }
     else
         client_socket = -1;
 
@@ -54,4 +44,38 @@ struct sockaddr *create_client_addr(char* ip, int port, socklen_t *len, int* is_
     free(address_v6);
 
     return NULL;
+}
+
+void print_message(BattleMessage server_message){
+    char* actions[] = {"Laser Attack", "Photon Torpedo", "Shields Up", "Cloaking", "Hyper Jump"};
+
+    if(server_message.type == MSG_INIT || server_message.type == MSG_BATTLE_RESULT || server_message.type == MSG_GAME_OVER){
+        printf("%s\n", server_message.message);
+        return;
+    }
+
+    if(server_message.type == MSG_ACTION_RES){
+        printf("Você usou um %s\n", actions[server_message.client_action]);
+        printf("Servidor usou um %s\n", actions[server_message.server_action]);
+        printf("%s\n", server_message.message);
+        return;
+    }
+
+    if(server_message.type == MSG_INVENTORY){
+        printf("Inventário final:\n");
+        printf("- HP restante: %d\n", server_message.client_hp);
+        printf("- Torpedos usados: %d\n", server_message.client_torpedoes);
+        printf("- Escudos usados: %d\n", server_message.client_shields);
+        printf("%s\n", server_message.message);
+        return;
+    }
+
+    if(server_message.type == MSG_ESCAPE){
+        printf("Você acionou o Hyper Jump\n");
+        printf("Sua nave escapou para o hiperespaço\n");
+        return;
+    }
+
+    printf("Tipo de mensagem inválido!");
+    exit(EXIT_FAILURE);
 }

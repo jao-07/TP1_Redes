@@ -6,9 +6,10 @@ int main(int argc, char *argv[]){
     struct sockaddr *client_addr;
     socklen_t client_addrlen;
     int is_v4;
-    char input_buffer[1024] = { 0 };
-    char output_buffer[2] = { 0 };
+    BattleMessage server_message;
+    BattleMessage client_message;
     int option = -1;
+    client_able_to_play = 1;
 
     if(argc != 3){
         printf("Parâmetros passados inválidos!");
@@ -27,28 +28,34 @@ int main(int argc, char *argv[]){
         exit(EXIT_FAILURE);
     }
 
+    client_message.type = MSG_ACTION_REQ;
+
     while(1){
         memset(input_buffer, 0, sizeof(input_buffer));
-        ssize_t received_bytes = recv(client_socket, input_buffer, sizeof(input_buffer) - 1, 0);
+        ssize_t received_bytes = recv(client_socket, &server_message, sizeof(server_message), 0);
         if(received_bytes <= 0){
             printf("Conexão encerrada.");
             break;
         }
 
-        input_buffer[received_bytes] = '\0';
-        printf("%s\n", input_buffer);
+        if(server_message.client_hp == 0 || server_message.server_hp == 0 || server_message.type == MSG_ESCAPE)
+            client_able_to_play = 0;
+
+        print_message(server_message);
         
-        while(option < 0 || option > 4){
-            printf("Escolha uma opção:\n0: Laser Attack\n1: Photon Torpedo\n2: Shields Up\n3: Cloaking \n4: Hyper Jump\n\n");
+        if(client_able_to_play){
+            while(option < 0 || option > 4){
+                printf("Escolha uma opção:\n0: Laser Attack\n1: Photon Torpedo\n2: Shields Up\n3: Cloaking \n4: Hyper Jump\n\n");
 
-            scanf("%d", &option);
+                scanf("%d", &option);
 
-            if(option < 0 || option > 4)
-                printf("Opção escolhida inválida! Escolha uma opção entre 1 e 5.\n\n");
+                if(option < 0 || option > 4)
+                    printf("Opção escolhida inválida! Escolha uma opção entre 1 e 5.\n\n");
+            }
+
+            int option_net = htonl(option);
+            send(client_socket, &option_net, sizeof(option_net), 0);
+            option = -1;
         }
-
-        int option_net = htonl(option);
-        send(client_socket, &option_net, sizeof(option_net), 0);
-        option = -1;
     }
 }
