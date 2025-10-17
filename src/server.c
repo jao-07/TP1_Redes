@@ -38,7 +38,80 @@ struct sockaddr *create_server_addr(int port, char* protocol, socklen_t *len){
     return NULL;
 }
 
-struct  BattleMessage process_actions(struct BattleMessage client_message, int client_socket){
+struct  BattleMessage build_message(struct BattleMessage msg){
+    if(msg.type != MSG_ACTION_REQ){
+        printf("Tipo da mensagem do cliente inválida");
+        exit(EXIT_FAILURE);
+    }
+
     int server_choice = rand() % 5;
+    msg.server_action = server_choice;
+
+    char* laser_client = "Você disparou um Laser!\n";
+    char* torpedo_client = "Você disparou um Photon Torpedo!\n";
+    char* cloaking_client = "Você ativou Cloaking\n";
+    char* shields_client = "Você ativou Escudos\n";
+
+    char* laser_server = "Inimigo disparou um Laser!\n";
+    char* torpedo_server = "Inimigo disparou um Photon Torpedo!\n";
+    char* cloaking_server = "Inimigo ativou Cloaking\n";
+    char* shields_server = "Inimigo ativou Escudos\n";
+
+    char* blocked_attack_client = "Resultado: Ataque aliado bloqueado!";
+    char* blocked_attack_server = "Resultado: Ataque inimigo bloqueado!";
+
+    char* failed_attack_client = "Resultado: Ataque aliado falhou!";
+    char* failed_attack_server = "Resultado: Ataque inimigo falhou!";
+
+    char* success_attack_client = "Resultado: Você recebeu 20 de dano";
+    char* success_attack_server = "Resultado: Inimigo recebeu 20 de dano";
+    char* draw_attack = "Resultado: Ambos receberam 20 de dano";
+
+
+    if(msg.client_action == 4 && server_choice == 4){
+        msg.type = MSG_ESCAPE;
+        snprintf(msg->message, MSG_SIZE, "Fuga mútua! Você e o inimigo acionaram o Hyper Jump!\nSuas naves escaparam para o hiperespaço.");
+        return msg;
+    }
+
+    if(msg.client_action == 4){
+        msg.type = MSG_ESCAPE;
+        snprintf(msg->message, MSG_SIZE, "Você acionou o Hyper Jump!\nSua nave escapou para o hiperespaço.");
+        return msg;
+    }
+
+    if(server_choice == 4){
+        msg.type = MSG_ESCAPE;
+        snprintf(msg->message, MSG_SIZE, "O inimigo acionou o Hyper Jump!\nA nave dele escapou para o hiperespaço.");
+        return msg;
+    }
+
+    msg.type = MSG_ACTION_RES;
+
+    //Laser do cliente
+    if(msg.client_action == 0){
+        //Shield do server
+        if(server_choice == 2){
+            snprintf(msg->message, MSG_SIZE, "%s%s%sPlacar: Você %d x %d Inimigo\n", laser_client, shields_server, blocked_attack_client, msg.client_hp, msg.server_hp);
+            return msg;
+        }
+
+        //Cloaking do server
+        if(server_choice == 3){
+            msg.server_hp -= 20;
+            snprintf(msg->message, MSG_SIZE, "%s%s%sPlacar: Você %d x %d Inimigo\n", laser_client, cloaking_server, blocked_attack_client);
+            return msg;
+        }
+
+        snprintf(msg->message, MSG_SIZE, "%s%s%sPlacar: Você %d x %d Inimigo\n", laser_client, shields_server, success_attack_client);
+        return msg;
+    }
+}
+
+void process_actions(struct BattleMessage message, int client_socket){
+    struct  BattleMessage message;
+    
+
+
 
 }
