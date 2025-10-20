@@ -38,35 +38,109 @@ struct sockaddr *create_server_addr(int port, char* protocol, socklen_t *len){
     return NULL;
 }
 
+void actions_results(struct BattleMessage* msg){
+
+    char * client_phrases[4] = {"Você disparou um Laser!\n", "Você disparou um Photon Torpedo!\n", "Você ativou Cloaking\n", "Você ativou Escudos\n"};
+
+    char * server_phrases[4] = {"Inimigo disparou um Laser!\n", "Inimigo disparou um Photon Torpedo!\n", "Inimigo ativou Cloaking\n", "Inimigo ativou Escudos\n"};
+
+    char* client_option_selected = client_phrases[msg->client_action];
+    char* server_option_selected = server_phrases[msg->server_action];
+
+    char* blocked_attack_client = "Resultado: Ataque aliado bloqueado!\n";
+    char* blocked_attack_server = "Resultado: Ataque inimigo bloqueado!\n";
+
+    char* failed_attack_client = "Resultado: Ataque aliado falhou!\n";
+    char* failed_attack_server = "Resultado: Ataque inimigo falhou!\n";
+
+    char* success_attack_server = "Resultado: Você recebeu 20 de dano\n";
+    char* success_attack_client = "Resultado: Inimigo recebeu 20 de dano\n";
+    char* draw_attack = "Resultado: Ambos receberam 20 de dano\n";
+    char* draw_fail = "Resultado: Nenhum ataque foi desferido. Ninguém recebeu dano\n";
+
+    snprintf(msg->message, MSG_SIZE, "%s%s", client_option_selected, server_option_selected);
+
+    if(msg->client_action == 0){
+        if(msg->server_action == 0){
+            snprintf(msg->message, MSG_SIZE, draw_attack);
+            msg->client_hp -= 20;
+            msg->server_hp -= 20;
+        }
+        if(msg->server_action == 1){
+            snprintf(msg->message, MSG_SIZE, success_attack_server);
+            msg->client_hp -= 20;
+        }  
+        if(msg->server_action == 2){
+            snprintf(msg->message, MSG_SIZE, blocked_attack_client);
+        }
+        if(msg->server_action == 3){
+            snprintf(msg->message, MSG_SIZE, success_attack_client);
+            msg->server_hp -= 20;
+        }    
+    }
+
+    if(msg->client_action == 1){
+        if(msg->server_action == 0){
+            snprintf(msg->message, MSG_SIZE, success_attack_client);
+            msg->server_hp -= 20;
+            msg->client_torpedoes++;
+        }
+        if(msg->server_action == 1){
+            snprintf(msg->message, MSG_SIZE, draw_attack);
+            msg->client_hp -= 20;
+            msg->server_hp -= 20;
+            msg->client_torpedoes++;
+        }
+        if(msg->server_action == 2){
+            snprintf(msg->message, MSG_SIZE, blocked_attack_client);
+            msg->client_torpedoes++;
+        }
+        if(msg->server_action == 3){
+            snprintf(msg->message, MSG_SIZE, failed_attack_client);
+        }
+    }
+
+    if(msg->client_action == 2){
+        msg->client_shields++;
+        if(msg->server_action == 0 || msg->server_action == 1){
+            snprintf(msg->message, MSG_SIZE, blocked_attack_server);
+        }
+        if(msg->server_action == 2 || msg->server_action == 3){
+            snprintf(msg->message, MSG_SIZE, draw_fail);
+        }
+    }
+
+    if(msg->client_action == 3){
+        if(msg->server_action == 0){
+            snprintf(msg->message, MSG_SIZE, success_attack_server);
+            msg->client_hp -= 20;
+        }
+        if(msg->server_action == 1){
+            snprintf(msg->message, MSG_SIZE, failed_attack_server);
+        }
+        if(msg->server_action == 2 || msg->server_action == 3){
+            snprintf(msg->message, MSG_SIZE, draw_fail);
+        }
+    }
+
+    if(msg->client_action > 3 || msg->server_action > 3){
+        printf("Valor de ação de cliente ou servidor inválido!");
+        exit(EXIT_FAILURE);
+    }
+
+    snprintf(msg->message, MSG_SIZE, "Placar: Você %d x %d Inimigo\n\n");
+        
+}
+
 struct  BattleMessage build_message(struct BattleMessage msg){
     if(msg.type != MSG_ACTION_REQ){
         printf("Tipo da mensagem do cliente inválida");
         exit(EXIT_FAILURE);
     }
 
+    
+
     int server_choice = rand() % 5;
-    msg.server_action = server_choice;
-
-    char* laser_client = "Você disparou um Laser!\n";
-    char* torpedo_client = "Você disparou um Photon Torpedo!\n";
-    char* cloaking_client = "Você ativou Cloaking\n";
-    char* shields_client = "Você ativou Escudos\n";
-
-    char* laser_server = "Inimigo disparou um Laser!\n";
-    char* torpedo_server = "Inimigo disparou um Photon Torpedo!\n";
-    char* cloaking_server = "Inimigo ativou Cloaking\n";
-    char* shields_server = "Inimigo ativou Escudos\n";
-
-    char* blocked_attack_client = "Resultado: Ataque aliado bloqueado!";
-    char* blocked_attack_server = "Resultado: Ataque inimigo bloqueado!";
-
-    char* failed_attack_client = "Resultado: Ataque aliado falhou!";
-    char* failed_attack_server = "Resultado: Ataque inimigo falhou!";
-
-    char* success_attack_client = "Resultado: Você recebeu 20 de dano";
-    char* success_attack_server = "Resultado: Inimigo recebeu 20 de dano";
-    char* draw_attack = "Resultado: Ambos receberam 20 de dano";
-
 
     if(msg.client_action == 4 && server_choice == 4){
         msg.type = MSG_ESCAPE;
@@ -87,25 +161,12 @@ struct  BattleMessage build_message(struct BattleMessage msg){
     }
 
     msg.type = MSG_ACTION_RES;
+    
+    char* actions_result = actions_results(msg.client_action, server_action);
 
-    //Laser do cliente
-    if(msg.client_action == 0){
-        //Shield do server
-        if(server_choice == 2){
-            snprintf(msg->message, MSG_SIZE, "%s%s%sPlacar: Você %d x %d Inimigo\n", laser_client, shields_server, blocked_attack_client, msg.client_hp, msg.server_hp);
-            return msg;
-        }
+    snprintf(msg->message, MSG_SIZE, "%s%s%sPlacar: Você %d x %d Inimigo\n", client_option_selected, server_option_selected, actions_result, msg.client_hp, msg.server_hp);
 
-        //Cloaking do server
-        if(server_choice == 3){
-            msg.server_hp -= 20;
-            snprintf(msg->message, MSG_SIZE, "%s%s%sPlacar: Você %d x %d Inimigo\n", laser_client, cloaking_server, blocked_attack_client);
-            return msg;
-        }
-
-        snprintf(msg->message, MSG_SIZE, "%s%s%sPlacar: Você %d x %d Inimigo\n", laser_client, shields_server, success_attack_client);
-        return msg;
-    }
+    msg.server_action = server_choice;
 }
 
 void process_actions(struct BattleMessage message, int client_socket){
