@@ -65,8 +65,8 @@ int main(int argc, char *argv[]){
             break;
         }
 
-        process_actions(client_message, client_socket);     
-        //send(client_socket, &server_message, strlen(server_message), 0);
+        build_message(client_message);     
+        send(client_socket, &server_message, strlen(server_message), 0);
     }
 
     close(client_socket);

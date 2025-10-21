@@ -132,8 +132,8 @@ void actions_results(struct BattleMessage* msg){
         
 }
 
-struct  BattleMessage build_message(struct BattleMessage msg){
-    if(msg.type != MSG_ACTION_REQ){
+void build_message(struct BattleMessage* msg){
+    if(msg->type != MSG_ACTION_REQ){
         printf("Tipo da mensagem do cliente inválida");
         exit(EXIT_FAILURE);
     }
@@ -142,37 +142,29 @@ struct  BattleMessage build_message(struct BattleMessage msg){
 
     int server_choice = rand() % 5;
 
-    if(msg.client_action == 4 && server_choice == 4){
-        msg.type = MSG_ESCAPE;
-        snprintf(msg->message, MSG_SIZE, "Fuga mútua! Você e o inimigo acionaram o Hyper Jump!\nSuas naves escaparam para o hiperespaço.");
+    if(msg->client_action == 4 && server_choice == 4){
+        msg->type = MSG_ESCAPE;
+        snprintf(msg->message, MSG_SIZE, "Fuga mútua! Você e o inimigo acionaram o Hyper Jump!\nSuas naves escaparam para o hiperespaço");
         return msg;
     }
 
-    if(msg.client_action == 4){
-        msg.type = MSG_ESCAPE;
+    if(msg->client_action == 4){
+        msg->type = MSG_ESCAPE;
         snprintf(msg->message, MSG_SIZE, "Você acionou o Hyper Jump!\nSua nave escapou para o hiperespaço.");
         return msg;
     }
 
     if(server_choice == 4){
-        msg.type = MSG_ESCAPE;
+        msg->type = MSG_ESCAPE;
         snprintf(msg->message, MSG_SIZE, "O inimigo acionou o Hyper Jump!\nA nave dele escapou para o hiperespaço.");
         return msg;
     }
 
-    msg.type = MSG_ACTION_RES;
+    msg->type = MSG_ACTION_RES;
     
-    char* actions_result = actions_results(msg.client_action, server_action);
+    char* actions_result = actions_results(msg->client_action, server_action);
 
-    snprintf(msg->message, MSG_SIZE, "%s%s%sPlacar: Você %d x %d Inimigo\n", client_option_selected, server_option_selected, actions_result, msg.client_hp, msg.server_hp);
+    snprintf(msg->message, MSG_SIZE, "%s%s%sPlacar: Você %d x %d Inimigo\n", client_option_selected, server_option_selected, actions_result, msg->client_hp, msg->server_hp);
 
-    msg.server_action = server_choice;
-}
-
-void process_actions(struct BattleMessage message, int client_socket){
-    struct  BattleMessage message;
-    
-
-
-
+    msg->server_action = server_choice;
 }
