@@ -62,64 +62,64 @@ void actions_results(struct BattleMessage* msg){
 
     if(msg->client_action == 0){
         if(msg->server_action == 0){
-            snprintf(msg->message, MSG_SIZE, draw_attack);
+            snprintf(msg->message, MSG_SIZE, "%s", draw_attack);
             msg->client_hp -= 20;
             msg->server_hp -= 20;
         }
         if(msg->server_action == 1){
-            snprintf(msg->message, MSG_SIZE, success_attack_server);
+            snprintf(msg->message, MSG_SIZE, "%s", success_attack_server);
             msg->client_hp -= 20;
         }  
         if(msg->server_action == 2){
-            snprintf(msg->message, MSG_SIZE, blocked_attack_client);
+            snprintf(msg->message, MSG_SIZE, "%s", blocked_attack_client);
         }
         if(msg->server_action == 3){
-            snprintf(msg->message, MSG_SIZE, success_attack_client);
+            snprintf(msg->message, MSG_SIZE, "%s", success_attack_client);
             msg->server_hp -= 20;
         }    
     }
 
     if(msg->client_action == 1){
         if(msg->server_action == 0){
-            snprintf(msg->message, MSG_SIZE, success_attack_client);
+            snprintf(msg->message, MSG_SIZE, "%s", success_attack_client);
             msg->server_hp -= 20;
             msg->client_torpedoes++;
         }
         if(msg->server_action == 1){
-            snprintf(msg->message, MSG_SIZE, draw_attack);
+            snprintf(msg->message, MSG_SIZE, "%s", draw_attack);
             msg->client_hp -= 20;
             msg->server_hp -= 20;
             msg->client_torpedoes++;
         }
         if(msg->server_action == 2){
-            snprintf(msg->message, MSG_SIZE, blocked_attack_client);
+            snprintf(msg->message, MSG_SIZE, "%s", blocked_attack_client);
             msg->client_torpedoes++;
         }
         if(msg->server_action == 3){
-            snprintf(msg->message, MSG_SIZE, failed_attack_client);
+            snprintf(msg->message, MSG_SIZE, "%s", failed_attack_client);
         }
     }
 
     if(msg->client_action == 2){
         msg->client_shields++;
         if(msg->server_action == 0 || msg->server_action == 1){
-            snprintf(msg->message, MSG_SIZE, blocked_attack_server);
+            snprintf(msg->message, MSG_SIZE, "%s", blocked_attack_server);
         }
         if(msg->server_action == 2 || msg->server_action == 3){
-            snprintf(msg->message, MSG_SIZE, draw_fail);
+            snprintf(msg->message, MSG_SIZE, "%s", draw_fail);
         }
     }
 
     if(msg->client_action == 3){
         if(msg->server_action == 0){
-            snprintf(msg->message, MSG_SIZE, success_attack_server);
+            snprintf(msg->message, MSG_SIZE, "%s", success_attack_server);
             msg->client_hp -= 20;
         }
         if(msg->server_action == 1){
-            snprintf(msg->message, MSG_SIZE, failed_attack_server);
+            snprintf(msg->message, MSG_SIZE, "%s", failed_attack_server);
         }
         if(msg->server_action == 2 || msg->server_action == 3){
-            snprintf(msg->message, MSG_SIZE, draw_fail);
+            snprintf(msg->message, MSG_SIZE, "%s", draw_fail);
         }
     }
 
@@ -128,9 +128,11 @@ void actions_results(struct BattleMessage* msg){
         exit(EXIT_FAILURE);
     }
 
-    snprintf(msg->message, MSG_SIZE, "Placar: Você %d x %d Inimigo\n\n");
+    snprintf(msg->message, MSG_SIZE, "%s", "Placar: Você %d x %d Inimigo\n\n");
         
 }
+
+
 
 void build_message(struct BattleMessage* msg){
     if(msg->type != MSG_ACTION_REQ){
@@ -138,25 +140,23 @@ void build_message(struct BattleMessage* msg){
         exit(EXIT_FAILURE);
     }
 
-    
-
     int server_choice = rand() % 5;
 
     if(msg->client_action == 4 && server_choice == 4){
         msg->type = MSG_ESCAPE;
-        snprintf(msg->message, MSG_SIZE, "Fuga mútua! Você e o inimigo acionaram o Hyper Jump!\nSuas naves escaparam para o hiperespaço");
+        snprintf(msg->message, MSG_SIZE, "%s", "Fuga mútua! Você e o inimigo acionaram o Hyper Jump!\nSuas naves escaparam para o hiperespaço");
         return msg;
     }
 
     if(msg->client_action == 4){
         msg->type = MSG_ESCAPE;
-        snprintf(msg->message, MSG_SIZE, "Você acionou o Hyper Jump!\nSua nave escapou para o hiperespaço.");
+        snprintf(msg->message, MSG_SIZE, "%s", "Você acionou o Hyper Jump!\nSua nave escapou para o hiperespaço.");
         return msg;
     }
 
     if(server_choice == 4){
         msg->type = MSG_ESCAPE;
-        snprintf(msg->message, MSG_SIZE, "O inimigo acionou o Hyper Jump!\nA nave dele escapou para o hiperespaço.");
+        snprintf(msg->message, MSG_SIZE, "%s", "O inimigo acionou o Hyper Jump!\nA nave dele escapou para o hiperespaço.");
         return msg;
     }
 
