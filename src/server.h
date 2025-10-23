@@ -9,7 +9,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <time.h>
+#include "message.h"
 
 int create_server_socket(char* protocol);
 struct sockaddr *create_server_addr(int port, char* protocol, socklen_t *len);
-char * process_option(int option, int server_hp, int client_hp);
+void actions_results(BattleMessage* msg);
+void handle_message(BattleMessage* msg);
