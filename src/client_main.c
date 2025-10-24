@@ -6,7 +6,7 @@ int main(int argc, char *argv[]){
     socklen_t client_addrlen;
     int is_v4;
     BattleMessage *battle_message = malloc(sizeof(BattleMessage));
-    int option = -1;
+    int turns = 0;
 
     if(argc != 3){
         printf("Parâmetros passados inválidos!");
@@ -27,11 +27,10 @@ int main(int argc, char *argv[]){
 
     memset(battle_message, 0, sizeof(BattleMessage));
     while(1){
+        memset(battle_message->message, 0, MSG_SIZE);
         ssize_t received_bytes = recv(client_socket, battle_message, sizeof(BattleMessage), 0);
-        if(received_bytes <= 0){
-            printf("Conexão encerrada.\n");
+        if(received_bytes <= 0)
             break;
-        }
 
         if(battle_message->type == MSG_INIT || battle_message->type == MSG_ESCAPE || battle_message->type == MSG_BATTLE_RESULT || battle_message->type == MSG_GAME_OVER){
             printf("%s", battle_message->message);
@@ -45,7 +44,10 @@ int main(int argc, char *argv[]){
         }
 
         if(battle_message->type == MSG_INVENTORY){
-            printf("Inventário Final:\n- HP restante: %d\n- Torpedos usados: %d\n- Escudos usados: %d\n%s", battle_message->client_hp, battle_message->client_torpedoes, battle_message->client_shields, battle_message->message);
+            printf("Inventário Final:\n- Seu HP restante: %d\n- HP inimigo restante: %d\n- Torpedos usados: %d\n- Escudos usados: %d\n%s", battle_message->client_hp, battle_message->server_hp, battle_message->client_torpedoes, battle_message->client_shields, battle_message->message);
         }
     }
+
+    close(client_socket);
+    free(battle_message);
 }

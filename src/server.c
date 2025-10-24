@@ -40,9 +40,9 @@ struct sockaddr *create_server_addr(int port, char* protocol, socklen_t *len){
 
 void actions_results(BattleMessage* msg){
 
-    char * client_phrases[4] = {"Você disparou um Laser!\n", "Você disparou um Photon Torpedo!\n", "Você ativou Cloaking\n", "Você ativou Escudos\n"};
+    char * client_phrases[4] = {"Você disparou um Laser!\n", "Você disparou um Photon Torpedo!\n", "Você ativou Escudos\n", "Você ativou Cloaking\n"};
 
-    char * server_phrases[4] = {"Inimigo disparou um Laser!\n", "Inimigo disparou um Photon Torpedo!\n", "Inimigo ativou Cloaking\n", "Inimigo ativou Escudos\n"};
+    char * server_phrases[4] = {"Inimigo disparou um Laser!\n", "Inimigo disparou um Photon Torpedo!\n", "Inimigo ativou Escudos\n", "Inimigo ativou Cloaking\n"};
 
     char* client_option_selected = client_phrases[msg->client_action];
     char* server_option_selected = server_phrases[msg->server_action];
@@ -58,7 +58,7 @@ void actions_results(BattleMessage* msg){
     char* draw_attack = "Resultado: Ambos receberam 20 de dano\n";
     char* draw_fail = "Resultado: Nenhum ataque foi desferido. Ninguém recebeu dano\n";
 
-    snprintf(msg->message + strlen(msg->message), MSG_SIZE - strlen(msg->message), "%s%s", client_option_selected, server_option_selected);
+    snprintf(msg->message, MSG_SIZE, "%s%s", client_option_selected, server_option_selected);
 
     if(msg->client_action == 0){
         if(msg->server_action == 0){
@@ -127,33 +127,31 @@ void actions_results(BattleMessage* msg){
         printf("Valor de ação de cliente ou servidor inválido!");
         exit(EXIT_FAILURE);
     }
-
-    snprintf(msg->message + strlen(msg->message), MSG_SIZE - strlen(msg->message), "%s", "Placar: Você %d x %d Inimigo\n\n");
-        
 }
 
 void handle_message(BattleMessage* msg){
-    int server_choice = rand() % 5;
 
-    if(msg->client_action == 4 && server_choice == 4){
+    msg->server_action = rand() % 5;
+
+    if(msg->client_action == 4 && msg->server_action == 4){
         msg->type = MSG_ESCAPE;
-        snprintf(msg->message + strlen(msg->message), MSG_SIZE - strlen(msg->message), "%s", "Fuga mútua! Você e o inimigo acionaram o Hyper Jump!\nSuas naves escaparam para o hiperespaço");
+        snprintf(msg->message, MSG_SIZE, "%s", "Fuga mútua! Você e o inimigo acionaram o Hyper Jump!\nSuas naves escaparam para o hiperespaço.\n");
         return;
     }
 
     if(msg->client_action == 4){
         msg->type = MSG_ESCAPE;
-        snprintf(msg->message + strlen(msg->message), MSG_SIZE - strlen(msg->message), "%s", "Você acionou o Hyper Jump!\nSua nave escapou para o hiperespaço.");
+        snprintf(msg->message, MSG_SIZE, "%s", "Você acionou o Hyper Jump!\nSua nave escapou para o hiperespaço.\n");
         return;
     }
 
-    if(server_choice == 4){
+    if(msg->server_action == 4){
         msg->type = MSG_ESCAPE;
-        snprintf(msg->message + strlen(msg->message), MSG_SIZE - strlen(msg->message), "%s", "O inimigo acionou o Hyper Jump!\nA nave dele escapou para o hiperespaço.");
+        snprintf(msg->message, MSG_SIZE, "%s", "O inimigo acionou o Hyper Jump!\nA nave dele escapou para o hiperespaço.\n");
         return;
     }
 
     actions_results(msg);
+    msg->type = MSG_BATTLE_RESULT;
     snprintf(msg->message + strlen(msg->message), MSG_SIZE - strlen(msg->message), "Placar: Você %d x %d Inimigo\n\n", msg->client_hp, msg->server_hp);
-    msg->server_action = server_choice;
 }
